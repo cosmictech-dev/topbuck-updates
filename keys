@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# TopBuck: re-enter Mansa + Currents API keys (no secrets stored in this repo)
+set -u
+APP=/opt/topbuck
+[ "$(id -u)" = 0 ] || { echo "Run with sudo"; exit 1; }
+[ -r /dev/tty ] || { echo "No terminal available"; exit 1; }
+ask() { # $1 label -> echoes value
+  local v
+  read -r -p "$1 (paste, then Enter): " v < /dev/tty
+  v=$(printf '%s' "$v" | tr -d '[:space:]')
+  printf '%s' "$v"
+}
+test_mansa() { curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $1" "https://mansaapi.com/api/v1/markets/indices"; }
+test_curr()  { curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $1" "https://api.currentsapi.services/v1/latest-news?language=en"; }
+for i in 1 2 3; do
+  M=$(ask "MANSA_API_KEY"); echo "  got ${#M} characters, starts ${M:0:14}" > /dev/tty
+  c=$(test_mansa "$M"); [ "$c" = 200 ] && { echo "  Mansa key OK"; break; }; echo "  Mansa rejected that key (HTTP $c). Try again."; M=""
+done
+for i in 1 2 3; do
+  C=$(ask "CURRENTS_API_KEY"); echo "  got ${#C} characters" > /dev/tty
+  c=$(test_curr "$C"); [ "$c" = 200 ] && { echo "  Currents key OK"; break; }; echo "  Currents rejected that key (HTTP $c). Try again."; C=""
+done
+[ -n "$M" ] && [ -n "$C" ] || { echo "KEYS NOT SAVED: a key was rejected 3 times."; exit 1; }
+umask 077
+printf 'MANSA_API_KEY=%s\nCURRENTS_API_KEY=%s\n' "$M" "$C" > "$APP/feeds.env"
+chmod 600 "$APP/feeds.env"; chown root:root "$APP/feeds.env"
+rm -f "$APP"/feeds-state/*mansa* 2>/dev/null
+OUT_DIR="$APP/www/data" STATE_DIR="$APP/feeds-state" TOPBUCK_FEEDS_ENV="$APP/feeds.env" /usr/bin/python3 "$APP/feeds/fetch_feeds.py"
+echo "TopBuck live data keys saved and tested."

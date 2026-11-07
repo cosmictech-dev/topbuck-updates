@@ -12,3 +12,6 @@ API keys are **not** in this repo — the installer prompts on the server via `/
 Rollback: installer writes `/root/topbuck-www-before-YYYY-MM-DD-HHMM.tgz` and keeps `/opt/topbuck/www.prev`.
 
 Previous site-only pack kept for reference: `u-f647638c.tgz`.
+
+## u-money-20261107 (7 Nov 2026)
+Money explained: four Botswana editorial articles, a News section, a Privacy notice page and footer link. Overlay only; feeds and keys untouched. Previous feeds installer kept as `go-feeds-20261106d`.

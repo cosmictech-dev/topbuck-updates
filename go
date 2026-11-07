@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# TopBuck update u-newsplit-20261107: separate News and Insights pages, News narrowed to household-money stories (Botswana first).
+# TopBuck update u-newsplit-20261107b: Bryan's 5 checked news items + separate News and Insights pages, News narrowed to household-money stories (Botswana first).
 # Replaces only the files in the pack plus the feeds script. Does not touch keys or MyCraft.
 set -euo pipefail
 main() {
   [ "$(id -u)" = 0 ] || { echo "Run with sudo"; exit 1; }
   local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main
-  local PKG=u-newsplit-20261107
-  local SHA=f240db5e60c438e744855b800650b083143d5bd6ecf852cecd4a232f94b5f94a
+  local PKG=u-newsplit-20261107b
+  local SHA=7f84bc59b16a64827de24cbb9919131b4c89e065d12a59c98afd704e59f1f80e
   local APP=/opt/topbuck WWW=/opt/topbuck/www
   [ -d "$WWW" ] && [ -f "$APP/feeds/fetch_feeds.py" ] || { echo "UPDATE FAILED: TopBuck folders not found. Nothing was changed."; exit 1; }
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT

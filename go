@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# TopBuck update u-tools2-20261108: adds My Optimized Balance Sheet and My Monthly Budget (first on Tools), handwritten font, calculator title tidy-up.
+# TopBuck update u-tools2-20261108b: adds My Optimized Balance Sheet and My Monthly Budget (first on Tools), handwritten font, calculator title tidy-up.
 # Replaces only site files in the pack. Does not touch keys, feeds or MyCraft.
 set -euo pipefail
 main() {
   [ "$(id -u)" = 0 ] || { echo "Run with sudo"; exit 1; }
   local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main
-  local PKG=u-tools2-20261108
-  local SHA=c4036c75455d5febf698a8602de3c441197e99ec92995d5b32f630213443ec6b
+  local PKG=u-tools2-20261108b
+  local SHA=da96c8025d45ea0d4f0799ab5091604ab6233f1915fdf2055dd5e026a60dba2b
   local WWW=/opt/topbuck/www
   [ -d "$WWW" ] || { echo "UPDATE FAILED: TopBuck folder not found. Nothing was changed."; exit 1; }
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT

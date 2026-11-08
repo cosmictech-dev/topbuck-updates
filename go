@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# TopBuck update u-toolsdisc-20261108c: adds GM's italic calculator disclaimer under the Planning tools intro on the Tools page.
+# TopBuck update u-toolsdisc-20261108d: adds GM's italic calculator disclaimer under the Planning tools intro on the Tools page.
 # Replaces only site files in the pack. Does not touch keys, feeds or MyCraft.
 set -euo pipefail
 main() {
   [ "$(id -u)" = 0 ] || { echo "Run with sudo"; exit 1; }
   local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main
-  local PKG=u-toolsdisc-20261108c
-  local SHA=cb9dce682d2868a2720e5f49d9ad57c0441b90b1061f67939f8f2d7eeefa6bb9
+  local PKG=u-toolsdisc-20261108d
+  local SHA=4938bf54bb3883ad23bfd6d27c88907e38c0ce4b9fd14fead166326a506cb67c
   local WWW=/opt/topbuck/www
   [ -d "$WWW" ] || { echo "UPDATE FAILED: TopBuck folder not found. Nothing was changed."; exit 1; }
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT

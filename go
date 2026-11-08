@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# TopBuck update u-balsheet-20261108b: adds My Optimized Balance Sheet (first on Tools), handwritten font, calculator page title tidy-up.
+# TopBuck update u-balsheet-20261108c: adds My Optimized Balance Sheet (first on Tools), handwritten font, calculator page title tidy-up.
 # Replaces only site files in the pack. Does not touch keys, feeds or MyCraft.
 set -euo pipefail
 main() {
   [ "$(id -u)" = 0 ] || { echo "Run with sudo"; exit 1; }
   local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main
-  local PKG=u-balsheet-20261108b
-  local SHA=f913c8fe2b83e0a66881dae27f1c0e4b2868e7b0248587f0d7b64d23fbae749a
+  local PKG=u-balsheet-20261108c
+  local SHA=032c1e72700ce634d2495c1c793cda588a7067f270c96c96163ad20578d22612
   local WWW=/opt/topbuck/www
   [ -d "$WWW" ] || { echo "UPDATE FAILED: TopBuck folder not found. Nothing was changed."; exit 1; }
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT

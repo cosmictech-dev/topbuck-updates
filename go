@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TopBuck update u-track-20261110: short tracking links (/sona, /sona-fb, /sona-x) and a cookie-free visit counter.
+# TopBuck update u-track-20261110: SONA 2026 news article, short tracking links (/sona, /sona-fb, /sona-x) and a cookie-free visit counter.
 # Logs keep no IP addresses or cookies. Aggregate counts only, behind a password at /stats/summary.json.
 # Touches only the TOPBUCK block in the Caddyfile; MyCraft's own config is not changed. Rolls back on any failure.
 set -euo pipefail
@@ -10,10 +10,22 @@ main() {
   local MARK_END='# END TOPBUCK'
   [ -f "$MYCRAFT/Caddyfile" ] && [ -d "$APP/www" ] || { echo "UPDATE FAILED: TopBuck or Caddy files not found. Nothing was changed."; exit 1; }
   grep -qF "$MARK_BEGIN" "$MYCRAFT/Caddyfile" || { echo "UPDATE FAILED: TopBuck block not found in Caddyfile. Nothing was changed."; exit 1; }
+  # --- site files: SONA 2026 article + News card ---
+  local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main PKG=u-track-20261110 SHA=ab6f3a43b03a6f4cce845442398263e830729899bfa2b77d1086e951cf4a51c9
+  TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+  curl -fsSL "$SRC/$PKG.tgz" -o "$TMP/u.tgz"
+  [ "$(sha256sum "$TMP/u.tgz" | cut -d' ' -f1)" = "$SHA" ] || { echo "UPDATE FAILED: download damaged. Nothing was changed."; exit 1; }
+  mkdir "$TMP/p"; tar xzf "$TMP/u.tgz" -C "$TMP/p" --no-same-owner
+  [ -f "$TMP/p/sona-2026-in-numbers.html" ] && [ -f "$TMP/p/news.html" ] || { echo "UPDATE FAILED: pack incomplete. Nothing was changed."; exit 1; }
   cd "$MYCRAFT"
   local BK=/root/topbuck-track-backup-$(date +%F-%H%M); mkdir -p "$BK"
   cp -p Caddyfile "$BK/Caddyfile"
+  tar czf "$BK/www-before.tgz" -C /opt/topbuck www
   echo "Backup saved to $BK"
+  cp -a "$TMP/p/." "$APP/www/"
+  find "$APP/www" -type d -exec chmod 755 {} +
+  find "$APP/www" -type f -exec chmod 644 {} +
+  echo "SONA article: installed"
   local NEW; NEW=$(mktemp)
   cat > "$NEW.block" <<'BLOCK'
 topbuck.app, www.topbuck.app {
@@ -36,9 +48,9 @@ topbuck.app, www.topbuck.app {
 			}
 		}
 	}
-	redir /sona /?utm_source=slide&utm_medium=qr&utm_campaign=sona2026 302
-	redir /sona-fb /?utm_source=facebook&utm_medium=social&utm_campaign=sona2026 302
-	redir /sona-x /?utm_source=x&utm_medium=social&utm_campaign=sona2026 302
+	redir /sona /sona-2026-in-numbers.html?utm_source=slide&utm_medium=qr&utm_campaign=sona2026 302
+	redir /sona-fb /sona-2026-in-numbers.html?utm_source=facebook&utm_medium=social&utm_campaign=sona2026 302
+	redir /sona-x /sona-2026-in-numbers.html?utm_source=x&utm_medium=social&utm_campaign=sona2026 302
 	basicauth /stats/* {
 		tbstats $2a$14$2bfUa0SLVMkl5Mvv3tIUouvIZ/EKkCQLEX1NeRC4ViHPviiOvsHsS
 	}
@@ -77,7 +89,7 @@ PY2
   done
   [ "$ok" = 1 ] || rollback "MyCraft did not answer after the change"
   local loc; loc=$(curl -sk -o /dev/null -w '%{redirect_url}' --resolve topbuck.app:443:127.0.0.1 https://topbuck.app/sona-fb || true)
-  case "$loc" in *utm_source=facebook*) echo "Tracking links: working";; *) rollback "tracking link test failed";; esac
+  case "$loc" in *sona-2026-in-numbers.html?utm_source=facebook*) echo "Tracking links: working";; *) rollback "tracking link test failed";; esac
   mkdir -p "$APP/bin" "$APP/www/stats"
   cat > "$APP/bin/topbuck-stats.py" <<'STATS'
 #!/usr/bin/env python3
@@ -170,7 +182,7 @@ STATS
   printf '%s\n' 'SHELL=/bin/bash' '17 * * * * root /usr/bin/python3 /opt/topbuck/bin/topbuck-stats.py >/dev/null 2>&1' > /etc/cron.d/topbuck-stats
   chmod 644 /etc/cron.d/topbuck-stats
   python3 "$APP/bin/topbuck-stats.py" && echo "Visit counter: running (updates hourly)"
-  echo "Undo: sudo cp $BK/Caddyfile $MYCRAFT/Caddyfile && cd $MYCRAFT && sudo docker compose restart caddy"
+  echo "Undo: sudo cp $BK/Caddyfile $MYCRAFT/Caddyfile && sudo rm -rf $APP/www && sudo tar xzf $BK/www-before.tgz -C /opt/topbuck && cd $MYCRAFT && sudo docker compose restart caddy"
   echo "TOPBUCK TRACKING UPDATE DONE"
 }
 main "$@"

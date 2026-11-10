@@ -11,12 +11,12 @@ main() {
   [ -f "$MYCRAFT/Caddyfile" ] && [ -d "$APP/www" ] || { echo "UPDATE FAILED: TopBuck or Caddy files not found. Nothing was changed."; exit 1; }
   grep -qF "$MARK_BEGIN" "$MYCRAFT/Caddyfile" || { echo "UPDATE FAILED: TopBuck block not found in Caddyfile. Nothing was changed."; exit 1; }
   # --- site files: SONA 2026 article + News card ---
-  local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main PKG=u-track-20261110 SHA=ab6f3a43b03a6f4cce845442398263e830729899bfa2b77d1086e951cf4a51c9
+  local SRC=https://raw.githubusercontent.com/cosmictech-dev/topbuck-updates/main PKG=u-track-20261110 SHA=e4c83292d39226f68679d3cf9a0da2f1568c95d08c829e2a9e67bc225cdb8ea1
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
   curl -fsSL "$SRC/$PKG.tgz" -o "$TMP/u.tgz"
   [ "$(sha256sum "$TMP/u.tgz" | cut -d' ' -f1)" = "$SHA" ] || { echo "UPDATE FAILED: download damaged. Nothing was changed."; exit 1; }
   mkdir "$TMP/p"; tar xzf "$TMP/u.tgz" -C "$TMP/p" --no-same-owner
-  [ -f "$TMP/p/sona-2026-in-numbers.html" ] && [ -f "$TMP/p/news.html" ] || { echo "UPDATE FAILED: pack incomplete. Nothing was changed."; exit 1; }
+  [ -f "$TMP/p/sona-2026-in-numbers.html" ] && [ -f "$TMP/p/news.html" ] && [ -f "$TMP/p/docs/SONA-2026-State-of-the-Nation-Address-full-speech.pdf" ] || { echo "UPDATE FAILED: pack incomplete. Nothing was changed."; exit 1; }
   cd "$MYCRAFT"
   local BK=/root/topbuck-track-backup-$(date +%F-%H%M); mkdir -p "$BK"
   cp -p Caddyfile "$BK/Caddyfile"
